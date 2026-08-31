@@ -1,6 +1,6 @@
 // useVenues — fetch venues by keyword or city
 
-import type { TmVenue, TmVenuesResponse } from '~/types/event'
+import type { TmVenue, TmVenuesResponse } from '~~/types/event'
 
 export function useVenues() {
   const loading = ref(false)
