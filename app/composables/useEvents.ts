@@ -1,6 +1,6 @@
 // useEvents — fetch event list and single event detail
 
-import type { TmEventsResponse, TmEvent, TmEventSearchParams } from '~/types/event'
+import type { TmEventsResponse, TmEvent, TmEventSearchParams } from '~~/types/event'
 
 export function useEvents() {
   const loading = ref(false)
