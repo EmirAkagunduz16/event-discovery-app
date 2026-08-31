@@ -35,8 +35,8 @@ export async function tmFetch<T>(url: string): Promise<T> {
     response = await fetch(url, { signal: AbortSignal.timeout(10_000) })
   }
   catch (err: unknown) {
-    const isTimeout =
-      err instanceof DOMException && err.name === 'TimeoutError'
+    const isTimeout
+      = err instanceof DOMException && err.name === 'TimeoutError'
     throw createError({
       statusCode: 503,
       statusMessage: isTimeout
@@ -63,10 +63,10 @@ export async function tmFetch<T>(url: string): Promise<T> {
         let detail = 'Geçersiz istek.'
         try {
           const body = await response.json()
-          detail =
-            body?.errors?.[0]?.detail ??
-            body?.fault?.faultstring ??
-            detail
+          detail
+            = body?.errors?.[0]?.detail
+              ?? body?.fault?.faultstring
+              ?? detail
         }
         catch {}
         throw createError({ statusCode: 400, statusMessage: detail })
