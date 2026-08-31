@@ -6,6 +6,14 @@ import type { TmEventSearchParams, TmEventsResponse } from '~~/types/event'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event) as Partial<TmEventSearchParams>
-  const url = buildTmUrl('/events.json', pickTmParams(query))
+
+  // Yaklaşan/güncel etkinlikleri getirmek için startDateTime belirtilmemişse varsayılan olarak şu anki zamanı kullan
+  const now = `${new Date().toISOString().split('.')[0]}Z`
+  const params: Partial<TmEventSearchParams> = {
+    startDateTime: now,
+    ...query,
+  }
+
+  const url = buildTmUrl('/events.json', pickTmParams(params))
   return tmFetch<TmEventsResponse>(url)
 })
