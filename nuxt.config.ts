@@ -5,17 +5,18 @@ export default defineNuxtConfig({
   modules: [
     '@nuxt/eslint',
     '@nuxt/ui',
+    '@pinia/nuxt',
   ],
+
+  pinia: {
+    storesDirs: ['./stores/**'],
+  },
 
   devtools: {
     enabled: true,
   },
 
   css: ['~/assets/css/main.css'],
-
-  routeRules: {
-    '/': { ssr: false },
-  },
 
   compatibilityDate: '2026-06-30',
 

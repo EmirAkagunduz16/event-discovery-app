@@ -1,9 +1,13 @@
 <script lang="ts" setup>
 import type { TmEvent } from '~~/types/event'
+import { useFavoritesStore } from '~~/stores/favorites'
+import { formatEventDate } from '~/utils/formatters'
 
 const props = defineProps<{
   event: TmEvent
 }>()
+
+const favoritesStore = useFavoritesStore()
 
 // Gösterilecek en iyi görsel (16:9 oranını tercih et, fallback olmayanı al)
 const image = computed(() => {
@@ -17,19 +21,10 @@ const image = computed(() => {
 
 // Tarih + saat formatı: "25 Aralık 2024, 19:30"
 const formattedDate = computed(() => {
-  const { localDate, localTime } = props.event.dates.start
-  if (!localDate) return null
-
-  const date = new Date(localDate)
-  const dateStr = date.toLocaleDateString('tr-TR', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-
-  if (!localTime) return dateStr
-  const [h, m] = localTime.split(':')
-  return `${dateStr}, ${h}:${m}`
+  return formatEventDate(
+    props.event.dates?.start?.localDate,
+    props.event.dates?.start?.localTime,
+  )
 })
 
 const venue = computed(() => props.event._embedded?.venues?.[0] ?? null)
@@ -40,14 +35,37 @@ const category = computed(() => {
   const cls = props.event.classifications?.find(c => c.primary) ?? props.event.classifications?.[0]
   return cls?.segment?.name ?? null
 })
+
+const isFav = computed(() => favoritesStore.isFavorite(props.event.id))
+
+function onToggleFavorite() {
+  const price = props.event.priceRanges?.[0]
+  favoritesStore.toggle({
+    id: props.event.id,
+    name: props.event.name,
+    url: props.event.url,
+    image: image.value,
+    date: props.event.dates?.start?.localDate ?? null,
+    time: props.event.dates?.start?.localTime ?? null,
+    dateTime: props.event.dates?.start?.dateTime ?? null,
+    status: props.event.dates?.status?.code ?? null,
+    city: city.value,
+    venueName: venueName.value,
+    segment: category.value,
+    genre: props.event.classifications?.[0]?.genre?.name ?? null,
+    priceMin: price?.min ?? null,
+    priceMax: price?.max ?? null,
+    currency: price?.currency ?? null,
+  })
+}
 </script>
 
 <template>
-  <NuxtLink :to="`/events/${event.id}`">
-    <UCard class="h-full hover:shadow-lg transition-shadow cursor-pointer overflow-hidden">
+  <NuxtLink :to="`/events/${event.id}`" class="block h-full">
+    <UCard class="h-full hover:shadow-lg transition-shadow cursor-pointer overflow-hidden flex flex-col">
       <!-- Görsel -->
       <template #header>
-        <div class="aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden">
+        <div class="relative aspect-video bg-gray-100 dark:bg-gray-800 overflow-hidden">
           <img
             v-if="image"
             :src="image"
@@ -60,11 +78,22 @@ const category = computed(() => {
           >
             <UIcon name="i-lucide-image" class="w-12 h-12" />
           </div>
+
+          <!-- Favori Butonu -->
+          <UButton
+            class="absolute top-2 right-2 rounded-full"
+            :color="isFav ? 'error' : 'neutral'"
+            :variant="isFav ? 'solid' : 'soft'"
+            :icon="isFav ? 'i-lucide-heart-crack' : 'i-lucide-heart'"
+            size="sm"
+            :aria-label="isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle'"
+            @click.stop.prevent="onToggleFavorite"
+          />
         </div>
       </template>
 
       <!-- İçerik -->
-      <div class="space-y-2">
+      <div class="space-y-2 flex-1">
         <!-- Kategori etiketi -->
         <UBadge
           v-if="category"

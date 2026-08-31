@@ -7,7 +7,7 @@ export function useVenues() {
   const error = ref<string | null>(null)
   const venues = ref<TmVenue[]>([])
 
-  async function getVenues(params: { keyword?: string; city?: string; countryCode?: string } = {}) {
+  async function getVenues(params: { keyword?: string, city?: string, countryCode?: string } = {}) {
     loading.value = true
     error.value = null
 

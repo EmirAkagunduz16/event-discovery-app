@@ -1,9 +1,12 @@
 <script lang="ts" setup>
 const { loading, error, data, getEvents } = useEvents()
 
-// Sayfa mount olunca yaklaşan etkinlikleri yükle
-onMounted(() => {
+function fetchUpcomingEvents() {
   getEvents({ size: 12, sort: 'date,asc' })
+}
+
+onMounted(() => {
+  fetchUpcomingEvents()
 })
 
 const events = computed(() => data.value?._embedded?.events ?? [])
@@ -21,63 +24,20 @@ const events = computed(() => data.value?._embedded?.events ?? [])
       </p>
     </div>
 
-    <!-- Loading: Skeleton grid -->
-    <div v-if="loading" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <UCard v-for="n in 12" :key="n" class="overflow-hidden">
-        <template #header>
-          <USkeleton class="w-full aspect-video" />
-        </template>
-        <div class="space-y-2">
-          <USkeleton class="h-4 w-16" />
-          <USkeleton class="h-5 w-full" />
-          <USkeleton class="h-4 w-3/4" />
-          <USkeleton class="h-4 w-1/2" />
-          <USkeleton class="h-4 w-2/3" />
-        </div>
-      </UCard>
-    </div>
-
-    <!-- Error durumu -->
-    <div v-else-if="error">
-      <UAlert
-        color="error"
-        variant="soft"
-        icon="i-lucide-circle-alert"
-        :title="error"
-      >
-        <template #actions>
-          <UButton
-            color="error"
-            variant="ghost"
-            label="Tekrar Dene"
-            @click="getEvents({ size: 12, sort: 'date,asc' })"
-          />
-        </template>
-      </UAlert>
-    </div>
-
-    <!-- Empty durumu -->
-    <div
-      v-else-if="!loading && !error && events.length === 0"
-      class="flex flex-col items-center justify-center py-20 text-gray-400 space-y-3"
-    >
-      <UIcon name="i-lucide-search-x" class="w-16 h-16" />
-      <p class="text-lg">
-        Yaklaşan etkinlik bulunamadı
-      </p>
-    </div>
-
-    <!-- Kart grid -->
-    <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <EventCard
-        v-for="event in events"
-        :key="event.id"
-        :event="event"
-      />
-    </div>
+    <!-- Etkinlik Listesi -->
+    <EventList
+      :events="events"
+      :loading="loading"
+      :error="error"
+      :skeleton-count="12"
+      @retry="fetchUpcomingEvents"
+    />
 
     <!-- Tüm Etkinlikleri Gör butonu -->
-    <div v-if="!loading && events.length > 0" class="flex justify-center">
+    <div
+      v-if="!loading && !error && events.length > 0"
+      class="flex justify-center"
+    >
       <UButton
         to="/events"
         label="Tüm Etkinlikleri Gör"
