@@ -4,7 +4,7 @@
  * Supports: keyword, city, countryCode, stateCode, page, size
  */
 
-import type { TmVenuesResponse } from '~/types/event'
+import type { TmVenuesResponse } from '~~/types/event'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
