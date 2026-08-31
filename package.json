@@ -1,7 +1,8 @@
 {
   "name": "event-discovery-app",
-  "private": true,
   "type": "module",
+  "private": true,
+  "packageManager": "pnpm@11.22.0",
   "scripts": {
     "build": "nuxt build",
     "dev": "nuxt dev",
@@ -23,11 +24,12 @@
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
+    "@antfu/eslint-config": "^9.3.0",
     "@nuxt/eslint": "^1.17.0",
     "@types/node": "^26.4.0",
     "eslint": "^10.9.0",
+    "eslint-plugin-format": "^2.0.1",
     "typescript": "^6.0.3",
     "vue-tsc": "^3.3.11"
-  },
-  "packageManager": "pnpm@11.22.0"
+  }
 }
