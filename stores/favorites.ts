@@ -1,7 +1,7 @@
 // Favorites store — Pinia + localStorage
 
+import type { EventCard } from '../types/event'
 import { defineStore } from 'pinia'
-import type { EventCard } from '~/types/event'
 
 export const useFavoritesStore = defineStore('favorites', {
   state: () => ({
@@ -27,16 +27,19 @@ export const useFavoritesStore = defineStore('favorites', {
     },
 
     hydrate() {
-      if (import.meta.server) return
+      if (import.meta.server)
+        return
       try {
         const raw = localStorage.getItem('eda:favorites')
-        if (raw) this.events = JSON.parse(raw)
+        if (raw)
+          this.events = JSON.parse(raw)
       }
       catch {}
     },
 
     _save() {
-      if (import.meta.server) return
+      if (import.meta.server)
+        return
       localStorage.setItem('eda:favorites', JSON.stringify(this.events))
     },
   },

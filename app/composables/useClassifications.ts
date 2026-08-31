@@ -3,10 +3,11 @@
 export function useClassifications() {
   const loading = ref(false)
   const error = ref<string | null>(null)
-  const classifications = ref<Array<{ id: string; name: string }>>([])
+  const classifications = ref<Array<{ id: string, name: string }>>([])
 
   async function getClassifications() {
-    if (classifications.value.length > 0) return // already loaded, skip
+    if (classifications.value.length > 0)
+      return // already loaded, skip
 
     loading.value = true
     error.value = null
