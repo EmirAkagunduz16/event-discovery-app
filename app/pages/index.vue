@@ -5,15 +5,14 @@ function fetchUpcomingEvents() {
   getEvents({ size: 12, sort: 'date,asc' })
 }
 
-onMounted(() => {
-  fetchUpcomingEvents()
-})
+// İlk açılışta veriyi hemen tetikle — böylece ilk render'da doğrudan loading (skeleton) görünür
+fetchUpcomingEvents()
 
 const events = computed(() => data.value?._embedded?.events ?? [])
 </script>
 
 <template>
-  <div class="max-w-7xl mx-auto px-4 py-10 space-y-8">
+  <UContainer class="py-10 space-y-8">
     <!-- Başlık -->
     <div class="text-center space-y-2">
       <h1 class="text-3xl font-bold">
@@ -45,5 +44,5 @@ const events = computed(() => data.value?._embedded?.events ?? [])
         trailing-icon="i-lucide-arrow-right"
       />
     </div>
-  </div>
+  </UContainer>
 </template>
