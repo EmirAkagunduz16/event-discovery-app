@@ -1,3 +1,3 @@
-export const useUseClassifications = () => {
+export function useUseClassifications() {
   return ref()
 }

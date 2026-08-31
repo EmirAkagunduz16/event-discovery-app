@@ -1,3 +1,3 @@
-export const useUseEvent = () => {
+export function useUseEvent() {
   return ref()
 }

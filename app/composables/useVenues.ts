@@ -1,3 +1,3 @@
-export const useUseVenues = () => {
+export function useUseVenues() {
   return ref()
 }
