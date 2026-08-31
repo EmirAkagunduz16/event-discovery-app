@@ -23,7 +23,7 @@ const emit = defineEmits<{
 
 <template>
   <div class="w-full">
-    <!-- Loading: Skeleton grid -->
+    <!-- Loading: Nuxt UI Skeleton Grid -->
     <div
       v-if="loading"
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
@@ -46,7 +46,7 @@ const emit = defineEmits<{
       </UCard>
     </div>
 
-    <!-- Error durumu -->
+    <!-- Error: Nuxt UI UAlert -->
     <div v-else-if="error">
       <UAlert
         color="error"
@@ -65,18 +65,19 @@ const emit = defineEmits<{
       </UAlert>
     </div>
 
-    <!-- Empty durumu -->
+    <!-- Empty: Nuxt UI UEmpty -->
     <div
       v-else-if="!loading && !error && events.length === 0"
-      class="flex flex-col items-center justify-center py-20 text-gray-400 space-y-3"
+      class="py-12"
     >
-      <UIcon name="i-lucide-search-x" class="w-16 h-16" />
-      <p class="text-lg">
-        Yaklaşan etkinlik bulunamadı
-      </p>
+      <UEmpty
+        icon="i-lucide-search-x"
+        title="Yaklaşan etkinlik bulunamadı"
+        description="Şu anda görüntülenecek etkinlik bulunmuyor. Lütfen daha sonra tekrar deneyin."
+      />
     </div>
 
-    <!-- Data durumu: Kart grid -->
+    <!-- Data: Kart grid -->
     <div
       v-else
       class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
