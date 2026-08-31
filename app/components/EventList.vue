@@ -31,6 +31,7 @@ const emit = defineEmits<{
       <UCard
         v-for="n in skeletonCount"
         :key="n"
+        :ui="{ header: 'p-0 sm:p-0' }"
         class="overflow-hidden"
       >
         <template #header>
