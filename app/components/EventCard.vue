@@ -55,7 +55,7 @@ function onToggleFavorite() {
     id: props.event.id,
     name: props.event.name,
     url: props.event.url,
-    image: image.value,
+    image: image.value ?? null,
     date: props.event.dates?.start?.localDate ?? null,
     time: props.event.dates?.start?.localTime ?? null,
     dateTime: props.event.dates?.start?.dateTime ?? null,
@@ -88,7 +88,7 @@ function onToggleFavorite() {
             :src="image"
             :alt="event.name"
             loading="lazy"
-            class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+            class="w-full h-full object-cover"
           >
           <div
             v-else
@@ -103,7 +103,7 @@ function onToggleFavorite() {
               :label="category"
               color="primary"
               variant="solid"
-              size="xs"
+              size="md"
               class="shadow-md backdrop-blur-md"
             />
           </div>
@@ -113,7 +113,7 @@ function onToggleFavorite() {
             class="absolute top-3 right-3 rounded-full shadow-md backdrop-blur-sm"
             :color="isFav ? 'error' : 'neutral'"
             :variant="isFav ? 'solid' : 'soft'"
-            :icon="isFav ? 'i-lucide-heart' : 'i-lucide-heart'"
+            icon="i-lucide-heart"
             size="xs"
             :aria-label="isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle'"
             @click.stop.prevent="onToggleFavorite"
