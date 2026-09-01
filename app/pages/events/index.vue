@@ -39,8 +39,8 @@ function fetchEvents() {
   getEvents({
     keyword: q.value.keyword || undefined,
     classificationName: q.value.category || undefined,
-    startDateTime: q.value.startDate ? `${q.value.startDate}T00:00:00Z` : undefined,
-    endDateTime: q.value.endDate ? `${q.value.endDate}T23:59:59Z` : undefined,
+    localStartDateTime: q.value.startDate ? `${q.value.startDate}T00:00:00` : undefined,
+    localEndDateTime: q.value.endDate ? `${q.value.endDate}T23:59:59` : undefined,
     sort: q.value.sort,
     page: q.value.page - 1,
     size: 12,
@@ -64,17 +64,28 @@ function clearAllFilters() {
 
 <template>
   <UContainer class="py-8 space-y-6">
-    <div class="space-y-1">
-      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-        Tüm Etkinlikler
-      </h1>
-      <p v-if="!loading && pageInfo" class="text-sm text-gray-500 dark:text-gray-400">
-        Toplam
-        <span class="font-semibold text-gray-700 dark:text-gray-200">
-          {{ pageInfo.totalElements.toLocaleString('tr-TR') }}
-        </span>
-        etkinlik bulundu
-      </p>
+    <div class="space-y-4">
+      <UButton
+        to="/"
+        icon="i-lucide-arrow-left"
+        label="Ana Sayfaya Dön"
+        variant="ghost"
+        color="neutral"
+        size="sm"
+        class="-ml-2"
+      />
+      <div class="space-y-1">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          Tüm Etkinlikler
+        </h1>
+        <p v-if="!loading && pageInfo" class="text-sm text-gray-500 dark:text-gray-400">
+          Toplam
+          <span class="font-semibold text-gray-700 dark:text-gray-200">
+            {{ pageInfo.totalElements.toLocaleString('tr-TR') }}
+          </span>
+          etkinlik bulundu
+        </p>
+      </div>
     </div>
 
     <EventSearch

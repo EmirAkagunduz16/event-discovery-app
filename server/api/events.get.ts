@@ -7,10 +7,10 @@ import type { TmEventSearchParams, TmEventsResponse } from '~~/types/event'
 export default defineEventHandler(async (event) => {
   const query = getQuery(event) as Partial<TmEventSearchParams>
 
-  // Yaklaşan/güncel etkinlikleri getirmek için startDateTime belirtilmemişse varsayılan olarak şu anki zamanı kullan
+  // Yaklaşan/güncel etkinlikleri getirmek için başlangıç tarihi belirtilmemişse varsayılan olarak şu anki zamanı kullan
   const now = `${new Date().toISOString().split('.')[0]}Z`
   const params: Partial<TmEventSearchParams> = {
-    startDateTime: now,
+    ...(!query.startDateTime && !query.localStartDateTime ? { startDateTime: now } : {}),
     ...query,
   }
 
