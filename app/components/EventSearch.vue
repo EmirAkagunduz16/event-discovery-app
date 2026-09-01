@@ -1,54 +1,34 @@
 <script lang="ts" setup>
 const props = defineProps<{ modelValue: string }>()
-const emit = defineEmits<{
-  (e: 'update:modelValue', value: string): void
-  (e: 'search', keyword: string): void
-  (e: 'clear'): void
-}>()
+const emit = defineEmits<{ search: [keyword: string] }>()
 
-const inputValue = ref(props.modelValue)
-const showHint = computed(() => inputValue.value.length === 1)
-let debounceTimer: ReturnType<typeof setTimeout> | null = null
+const input = ref(props.modelValue)
+const showHint = computed(() => input.value.length === 1)
+let timer: ReturnType<typeof setTimeout>
 
-watch(
-  () => props.modelValue,
-  (val) => { inputValue.value = val },
-)
+watch(() => props.modelValue, val => (input.value = val))
 
 function onInput(val: string) {
-  inputValue.value = val
-  emit('update:modelValue', val)
-
-  if (debounceTimer)
-    clearTimeout(debounceTimer)
-
-  if (val.length === 0) {
-    debounceTimer = setTimeout(() => emit('search', ''), 400)
-    return
-  }
-
-  if (val.length < 2)
-    return
-
-  debounceTimer = setTimeout(() => emit('search', val), 400)
+  input.value = val
+  clearTimeout(timer)
+  if (val.length === 1) return
+  timer = setTimeout(() => emit('search', val.trim()), 400)
 }
 
 function onClear() {
-  inputValue.value = ''
-  emit('update:modelValue', '')
-  emit('clear')
+  input.value = ''
+  emit('search', '')
 }
 </script>
 
 <template>
   <div class="flex flex-col gap-1">
     <UInput
-      :model-value="inputValue"
+      :model-value="input"
       placeholder="Etkinlik, sanatçı veya mekan ara..."
       size="lg"
       leading-icon="i-lucide-search"
-      :trailing-icon="inputValue ? 'i-lucide-x' : undefined"
-      :ui="{ trailingIcon: 'cursor-pointer' }"
+      :trailing-icon="input ? 'i-lucide-x' : undefined"
       @update:model-value="onInput"
       @click:trailing="onClear"
     />
