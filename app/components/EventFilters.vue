@@ -44,10 +44,8 @@ function onEndDate(e: Event) {
 <template>
   <div class="flex flex-wrap gap-3 items-center">
     <USelect
-      :model-value="category || null"
-      :options="categoryOptions"
-      option-attribute="label"
-      value-attribute="value"
+      :model-value="category || undefined"
+      :items="categoryOptions"
       placeholder="Tüm Kategoriler"
       size="md"
       class="w-48"

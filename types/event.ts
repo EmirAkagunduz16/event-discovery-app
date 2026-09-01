@@ -415,7 +415,7 @@ export interface EventCard {
   date: string | null // localDate "YYYY-MM-DD"
   time: string | null // localTime "HH:mm:ss"
   dateTime: string | null // ISO 8601
-  status: TmEventDates['status']['code'] | null
+  status: NonNullable<TmEventDates['status']>['code'] | null
   city: string | null
   venueName: string | null
   segment: string | null // e.g. "Music", "Sports"
