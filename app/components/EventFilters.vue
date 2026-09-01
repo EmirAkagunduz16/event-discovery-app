@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { formatCategory } from '~/utils/formatters'
+
 const props = defineProps<{
   category: string
   startDate: string
@@ -14,9 +16,20 @@ const emit = defineEmits<{
 const { classifications, getClassifications } = useClassifications()
 onMounted(getClassifications)
 
-const categoryOptions = computed(() =>
-  classifications.value.map(c => ({ label: c.name, value: c.name })),
-)
+const categoryOptions = computed(() => [
+  { label: 'Tüm Kategoriler', value: 'all' },
+  ...classifications.value.map(c => ({
+    label: formatCategory(c.name) ?? c.name,
+    value: c.name,
+  })),
+])
+
+function onCategorySelect(val: string | undefined) {
+  if (!val || val === 'all')
+    emit('update:category', '')
+  else
+    emit('update:category', val)
+}
 
 const dateError = ref('')
 
@@ -44,12 +57,11 @@ function onEndDate(e: Event) {
 <template>
   <div class="flex flex-wrap gap-3 items-center">
     <USelect
-      :model-value="category || undefined"
+      :model-value="category || 'all'"
       :items="categoryOptions"
-      placeholder="Tüm Kategoriler"
       size="md"
       class="w-48"
-      @update:model-value="emit('update:category', String($event ?? ''))"
+      @update:model-value="onCategorySelect"
     />
 
     <div class="flex flex-col gap-1">

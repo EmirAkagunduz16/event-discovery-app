@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { TmEvent } from '~~/types/event'
 import { useFavoritesStore } from '~~/stores/favorites'
-import { formatEventDate } from '~/utils/formatters'
+import { formatCategory, formatEventDate } from '~/utils/formatters'
 
 const props = defineProps<{
   event: TmEvent
@@ -44,7 +44,7 @@ const venueName = computed(() => venue.value?.name ?? null)
 
 const category = computed(() => {
   const cls = props.event.classifications?.find(c => c.primary) ?? props.event.classifications?.[0]
-  return cls?.segment?.name ?? null
+  return formatCategory(cls?.segment?.name)
 })
 
 const isFav = computed(() => favoritesStore.isFavorite(props.event.id))

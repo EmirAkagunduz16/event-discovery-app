@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { TmEventSortOption } from '~~/types/event'
+import { formatCategory } from '~/utils/formatters'
 
 useHead({ title: 'Etkinlikler | Event Discovery' })
 
@@ -11,6 +12,8 @@ const { loading, error, data, getEvents } = useEvents()
 const events = computed(() => data.value?._embedded?.events ?? [])
 const pageInfo = computed(() => data.value?.page ?? null)
 
+const PAGE_SIZE = 12
+
 const q = computed(() => ({
   keyword: (route.query.keyword as string) ?? '',
   category: (route.query.category as string) ?? '',
@@ -19,6 +22,14 @@ const q = computed(() => ({
   sort: ((route.query.sort as TmEventSortOption) ?? 'date,asc'),
   page: Math.max(1, Number(route.query.page) || 1),
 }))
+
+const totalPages = computed(() => {
+  if (!pageInfo.value?.totalPages)
+    return 0
+  // Ticketmaster API en fazla 1000 sonuca kadar sayfalamaya izin verir (page * size < 1000)
+  const maxTmPages = Math.floor(1000 / PAGE_SIZE)
+  return Math.min(pageInfo.value.totalPages, maxTmPages)
+})
 
 const hasActiveFilters = computed(
   () => !!(q.value.keyword || q.value.category || q.value.startDate || q.value.endDate),
@@ -39,15 +50,24 @@ function fetchEvents() {
   getEvents({
     keyword: q.value.keyword || undefined,
     classificationName: q.value.category || undefined,
-    startDateTime: q.value.startDate ? `${q.value.startDate}T00:00:00Z` : undefined,
-    endDateTime: q.value.endDate ? `${q.value.endDate}T23:59:59Z` : undefined,
+    localStartDateTime: q.value.startDate ? `${q.value.startDate}T00:00:00` : undefined,
+    localEndDateTime: q.value.endDate ? `${q.value.endDate}T23:59:59` : undefined,
     sort: q.value.sort,
     page: q.value.page - 1,
-    size: 12,
+    size: PAGE_SIZE,
   })
 }
 
 watch(() => route.query, fetchEvents, { immediate: true })
+
+watch(
+  () => route.query.page,
+  (newPage, oldPage) => {
+    if (newPage !== oldPage && import.meta.client) {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  },
+)
 
 function updateFilters(patch: Record<string, string | number | undefined>) {
   router.push({ query: { ...route.query, ...patch, page: 1 } })
@@ -55,6 +75,9 @@ function updateFilters(patch: Record<string, string | number | undefined>) {
 
 function updatePage(n: number) {
   router.push({ query: { ...route.query, page: n } })
+  if (import.meta.client) {
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 }
 
 function clearAllFilters() {
@@ -64,17 +87,28 @@ function clearAllFilters() {
 
 <template>
   <UContainer class="py-8 space-y-6">
-    <div class="space-y-1">
-      <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
-        Tüm Etkinlikler
-      </h1>
-      <p v-if="!loading && pageInfo" class="text-sm text-gray-500 dark:text-gray-400">
-        Toplam
-        <span class="font-semibold text-gray-700 dark:text-gray-200">
-          {{ pageInfo.totalElements.toLocaleString('tr-TR') }}
-        </span>
-        etkinlik bulundu
-      </p>
+    <div class="space-y-4">
+      <UButton
+        to="/"
+        icon="i-lucide-arrow-left"
+        label="Ana Sayfaya Dön"
+        variant="ghost"
+        color="neutral"
+        size="sm"
+        class="-ml-2"
+      />
+      <div class="space-y-1">
+        <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight">
+          Tüm Etkinlikler
+        </h1>
+        <p v-if="!loading && pageInfo" class="text-sm text-gray-500 dark:text-gray-400">
+          Toplam
+          <span class="font-semibold text-gray-700 dark:text-gray-200">
+            {{ pageInfo.totalElements.toLocaleString('tr-TR') }}
+          </span>
+          etkinlik bulundu
+        </p>
+      </div>
     </div>
 
     <EventSearch
@@ -105,7 +139,7 @@ function clearAllFilters() {
         </template>
       </UBadge>
 
-      <UBadge v-if="q.category" color="primary" variant="soft" :label="q.category">
+      <UBadge v-if="q.category" color="primary" variant="soft" :label="formatCategory(q.category) ?? q.category">
         <template #trailing>
           <UButton icon="i-lucide-x" size="xs" color="primary" variant="ghost" class="-mr-1" @click="updateFilters({ category: undefined })" />
         </template>
@@ -125,30 +159,49 @@ function clearAllFilters() {
       :events="events"
       :loading="loading"
       :error="error"
-      :skeleton-count="12"
+      :skeleton-count="PAGE_SIZE"
       @retry="fetchEvents"
     />
 
     <UEmpty
       v-else
       icon="i-lucide-search-x"
-      :title="hasActiveFilters ? 'Aramanıza uygun etkinlik bulunamadı' : 'Şu an gösterilecek etkinlik yok'"
-      :description="hasActiveFilters ? 'Farklı filtreler deneyebilir veya tüm filtreleri temizleyebilirsiniz.' : 'Lütfen daha sonra tekrar deneyin.'"
+      :title="q.page > 1 ? 'Bu sayfada gösterilecek etkinlik bulunamadı' : (hasActiveFilters ? 'Aramanıza uygun etkinlik bulunamadı' : 'Şu an gösterilecek etkinlik yok')"
+      :description="q.page > 1 ? 'Sayfa numarası mevcut etkinlik sınırının dışında olabilir. İlk sayfaya dönebilirsiniz.' : (hasActiveFilters ? 'Farklı filtreler deneyebilir veya tüm filtreleri temizleyebilirsiniz.' : 'Lütfen daha sonra tekrar deneyin.')"
     >
-      <template v-if="hasActiveFilters" #actions>
-        <UButton label="Filtreleri Temizle" color="primary" variant="soft" icon="i-lucide-filter-x" @click="clearAllFilters" />
+      <template #actions>
+        <UButton
+          v-if="q.page > 1"
+          label="İlk Sayfaya Dön"
+          color="primary"
+          variant="solid"
+          icon="i-lucide-arrow-left"
+          @click="updatePage(1)"
+        />
+        <UButton
+          v-else-if="hasActiveFilters"
+          label="Filtreleri Temizle"
+          color="primary"
+          variant="soft"
+          icon="i-lucide-filter-x"
+          @click="clearAllFilters"
+        />
       </template>
     </UEmpty>
 
     <div
-      v-if="!loading && !error && pageInfo && pageInfo.totalPages > 1"
-      class="flex items-center justify-center gap-4 pt-4"
+      v-if="!loading && !error && totalPages > 1"
+      class="flex justify-center pt-6 pb-2"
     >
-      <UButton icon="i-lucide-chevron-left" :disabled="q.page <= 1" color="neutral" variant="soft" aria-label="Önceki sayfa" @click="updatePage(q.page - 1)" />
-      <span class="text-sm text-gray-600 dark:text-gray-300 font-medium">
-        {{ q.page }} / {{ pageInfo.totalPages }}
-      </span>
-      <UButton icon="i-lucide-chevron-right" :disabled="q.page >= pageInfo.totalPages" color="neutral" variant="soft" aria-label="Sonraki sayfa" @click="updatePage(q.page + 1)" />
+      <UPagination
+        :page="q.page"
+        :total="totalPages * PAGE_SIZE"
+        :items-per-page="PAGE_SIZE"
+        :show-edges="true"
+        :sibling-count="1"
+        size="md"
+        @update:page="updatePage"
+      />
     </div>
   </UContainer>
 </template>

@@ -380,6 +380,8 @@ export interface TmEventSearchParams {
   marketId?: string
   startDateTime?: string // ISO 8601
   endDateTime?: string // ISO 8601
+  localStartDateTime?: string // "YYYY-MM-DDTHH:mm:ss"
+  localEndDateTime?: string // "YYYY-MM-DDTHH:mm:ss"
   includeTBA?: 'yes' | 'no' | 'only'
   includeTBD?: 'yes' | 'no' | 'only'
   includeTest?: 'yes' | 'no' | 'only'
