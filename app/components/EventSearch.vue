@@ -8,7 +8,7 @@ const emit = defineEmits<{
 
 const inputValue = ref(props.modelValue)
 const showHint = computed(() => inputValue.value.length === 1)
-let debounceTimer: ReturnType<typeof setTimeout> | null = null
+let debounceTimer: number | null = null
 
 watch(
   () => props.modelValue,
