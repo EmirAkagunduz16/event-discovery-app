@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import type { TmEventSortOption } from '~~/types/event'
+import { formatCategory } from '~/utils/formatters'
 
 useHead({ title: 'Etkinlikler | Event Discovery' })
 
@@ -138,7 +139,7 @@ function clearAllFilters() {
         </template>
       </UBadge>
 
-      <UBadge v-if="q.category" color="primary" variant="soft" :label="q.category">
+      <UBadge v-if="q.category" color="primary" variant="soft" :label="formatCategory(q.category) ?? q.category">
         <template #trailing>
           <UButton icon="i-lucide-x" size="xs" color="primary" variant="ghost" class="-mr-1" @click="updateFilters({ category: undefined })" />
         </template>

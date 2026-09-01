@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+import { formatCategory } from '~/utils/formatters'
+
 const props = defineProps<{
   category: string
   startDate: string
@@ -16,7 +18,10 @@ onMounted(getClassifications)
 
 const categoryOptions = computed(() => [
   { label: 'Tüm Kategoriler', value: 'all' },
-  ...classifications.value.map(c => ({ label: c.name, value: c.name })),
+  ...classifications.value.map(c => ({
+    label: formatCategory(c.name) ?? c.name,
+    value: c.name,
+  })),
 ])
 
 function onCategorySelect(val: string | undefined) {
