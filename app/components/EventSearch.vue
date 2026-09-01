@@ -11,7 +11,8 @@ watch(() => props.modelValue, val => (input.value = val))
 function onInput(val: string) {
   input.value = val
   clearTimeout(timer)
-  if (val.length === 1) return
+  if (val.length === 1)
+    return
   timer = setTimeout(() => emit('search', val.trim()), 400)
 }
 

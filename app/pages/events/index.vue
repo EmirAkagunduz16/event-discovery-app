@@ -82,14 +82,21 @@ function clearAllFilters() {
       @search="kw => updateFilters({ keyword: kw || undefined })"
     />
 
-    <EventFilters
-      :category="q.category"
-      :start-date="q.startDate"
-      :end-date="q.endDate"
-      @update:category="updateFilters({ category: $event || undefined })"
-      @update:start-date="updateFilters({ startDate: $event || undefined })"
-      @update:end-date="updateFilters({ endDate: $event || undefined })"
-    />
+    <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+      <EventFilters
+        :category="q.category"
+        :start-date="q.startDate"
+        :end-date="q.endDate"
+        @update:category="updateFilters({ category: $event || undefined })"
+        @update:start-date="updateFilters({ startDate: $event || undefined })"
+        @update:end-date="updateFilters({ endDate: $event || undefined })"
+      />
+
+      <EventSort
+        :model-value="q.sort"
+        @update:model-value="val => updateFilters({ sort: val })"
+      />
+    </div>
 
     <div v-if="hasActiveFilters" class="flex flex-wrap gap-2 items-center">
       <UBadge v-if="q.keyword" color="primary" variant="soft" :label="`Arama: ${q.keyword}`">
