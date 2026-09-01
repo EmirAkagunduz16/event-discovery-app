@@ -1,42 +1,26 @@
 <script lang="ts" setup>
-const emit = defineEmits<{
-  (e: 'update:city', value: string): void
-  (e: 'update:category', value: string): void
-  (e: 'update:startDate', value: string): void
-  (e: 'update:endDate', value: string): void
-  (e: 'clear-all'): void
-}>()
-
 const props = defineProps<{
-  city: string
   category: string
   startDate: string
   endDate: string
 }>()
 
-const CITIES = [
-  { label: 'Tüm Şehirler', value: '' },
-  { label: 'Istanbul', value: 'Istanbul' },
-  { label: 'Ankara', value: 'Ankara' },
-  { label: 'Izmir', value: 'Izmir' },
-  { label: 'Bursa', value: 'Bursa' },
-  { label: 'Antalya', value: 'Antalya' },
-  { label: 'Adana', value: 'Adana' },
-  { label: 'Konya', value: 'Konya' },
-]
+const emit = defineEmits<{
+  'update:category': [value: string]
+  'update:startDate': [value: string]
+  'update:endDate': [value: string]
+}>()
 
 const { classifications, getClassifications } = useClassifications()
+onMounted(getClassifications)
 
-onMounted(() => getClassifications())
-
-const categoryOptions = computed(() => [
-  { label: 'Tüm Kategoriler', value: '' },
-  ...classifications.value.map(c => ({ label: c.name, value: c.name })),
-])
+const categoryOptions = computed(() =>
+  classifications.value.map(c => ({ label: c.name, value: c.name })),
+)
 
 const dateError = ref('')
 
-function onStartDateChange(e: Event) {
+function onStartDate(e: Event) {
   const val = (e.target as HTMLInputElement).value
   if (props.endDate && val > props.endDate) {
     dateError.value = 'Bitiş tarihi başlangıç tarihinden önce olamaz'
@@ -46,7 +30,7 @@ function onStartDateChange(e: Event) {
   emit('update:startDate', val)
 }
 
-function onEndDateChange(e: Event) {
+function onEndDate(e: Event) {
   const val = (e.target as HTMLInputElement).value
   if (props.startDate && val < props.startDate) {
     dateError.value = 'Bitiş tarihi başlangıç tarihinden önce olamaz'
@@ -58,25 +42,16 @@ function onEndDateChange(e: Event) {
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-3 items-end">
+  <div class="flex flex-wrap gap-3 items-center">
     <USelect
-      :model-value="city"
-      :options="CITIES"
-      option-attribute="label"
-      value-attribute="value"
-      size="md"
-      class="w-44"
-      @update:model-value="(v) => emit('update:city', String(v ?? ''))"
-    />
-
-    <USelect
-      :model-value="category"
+      :model-value="category || null"
       :options="categoryOptions"
       option-attribute="label"
       value-attribute="value"
+      placeholder="Tüm Kategoriler"
       size="md"
       class="w-48"
-      @update:model-value="(v) => emit('update:category', String(v ?? ''))"
+      @update:model-value="emit('update:category', String($event ?? ''))"
     />
 
     <div class="flex flex-col gap-1">
@@ -84,15 +59,15 @@ function onEndDateChange(e: Event) {
         <input
           :value="startDate"
           type="date"
-          class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1.5 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          @change="onStartDateChange"
+          class="h-8 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+          @change="onStartDate"
         >
         <span class="text-xs text-gray-400">—</span>
         <input
           :value="endDate"
           type="date"
-          class="border border-gray-300 dark:border-gray-600 rounded-md px-3 py-1.5 text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-primary-500"
-          @change="onEndDateChange"
+          class="h-8 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100"
+          @change="onEndDate"
         >
       </div>
       <p v-if="dateError" class="text-xs text-red-500 dark:text-red-400">
