@@ -15,12 +15,15 @@ const { classifications, getClassifications } = useClassifications()
 onMounted(getClassifications)
 
 const categoryOptions = computed(() => [
-  { label: 'Tüm Kategoriler', value: '' },
+  { label: 'Tüm Kategoriler', value: 'all' },
   ...classifications.value.map(c => ({ label: c.name, value: c.name })),
 ])
 
 function onCategorySelect(val: string | undefined) {
-  emit('update:category', val || '')
+  if (!val || val === 'all')
+    emit('update:category', '')
+  else
+    emit('update:category', val)
 }
 
 const dateError = ref('')
@@ -49,7 +52,7 @@ function onEndDate(e: Event) {
 <template>
   <div class="flex flex-wrap gap-3 items-center">
     <USelect
-      :model-value="category || ''"
+      :model-value="category || 'all'"
       :items="categoryOptions"
       size="md"
       class="w-48"
