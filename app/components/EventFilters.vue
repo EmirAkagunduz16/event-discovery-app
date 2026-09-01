@@ -14,9 +14,14 @@ const emit = defineEmits<{
 const { classifications, getClassifications } = useClassifications()
 onMounted(getClassifications)
 
-const categoryOptions = computed(() =>
-  classifications.value.map(c => ({ label: c.name, value: c.name })),
-)
+const categoryOptions = computed(() => [
+  { label: 'Tüm Kategoriler', value: '' },
+  ...classifications.value.map(c => ({ label: c.name, value: c.name })),
+])
+
+function onCategorySelect(val: string | undefined) {
+  emit('update:category', val || '')
+}
 
 const dateError = ref('')
 
@@ -44,12 +49,11 @@ function onEndDate(e: Event) {
 <template>
   <div class="flex flex-wrap gap-3 items-center">
     <USelect
-      :model-value="category || undefined"
+      :model-value="category || ''"
       :items="categoryOptions"
-      placeholder="Tüm Kategoriler"
       size="md"
       class="w-48"
-      @update:model-value="emit('update:category', String($event ?? ''))"
+      @update:model-value="onCategorySelect"
     />
 
     <div class="flex flex-col gap-1">
