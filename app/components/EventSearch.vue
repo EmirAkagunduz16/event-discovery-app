@@ -23,14 +23,14 @@ function onInput(val: string) {
     clearTimeout(debounceTimer)
 
   if (val.length === 0) {
-    debounceTimer = setTimeout(emit, 400, 'search', '')
+    debounceTimer = setTimeout(() => emit('search', ''), 400)
     return
   }
 
   if (val.length < 2)
     return
 
-  debounceTimer = setTimeout(emit, 400, 'search', val)
+  debounceTimer = setTimeout(() => emit('search', val), 400)
 }
 
 function onClear() {
