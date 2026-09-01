@@ -20,6 +20,20 @@ export default defineEventHandler(async (event) => {
     defaultEndDateTime = `${maxDate.toISOString().split('.')[0]}Z`
   }
 
+  const page = Number(query.page) || 0
+  const size = Number(query.size) || 12
+  if (page * size >= 1000) {
+    return {
+      _embedded: { events: [] },
+      page: {
+        size,
+        totalElements: 0,
+        totalPages: 0,
+        number: page,
+      },
+    }
+  }
+
   const params: Partial<TmEventSearchParams> = {
     ...(!query.startDateTime && !query.localStartDateTime ? { startDateTime: now } : {}),
     ...(defaultEndDateTime ? { endDateTime: defaultEndDateTime } : {}),
