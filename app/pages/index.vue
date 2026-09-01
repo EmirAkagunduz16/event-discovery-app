@@ -2,10 +2,15 @@
 const { loading, error, data, getEvents } = useEvents()
 
 function fetchUpcomingEvents() {
-  getEvents({ size: 12, sort: 'date,asc' })
+  const todayLocalMidnight = new Date()
+  todayLocalMidnight.setHours(0, 0, 0, 0)
+  getEvents({
+    size: 12,
+    sort: 'date,asc',
+    startDateTime: todayLocalMidnight.toISOString(),
+  })
 }
 
-// İlk açılışta veriyi hemen tetikle
 fetchUpcomingEvents()
 
 const events = computed(() => data.value?._embedded?.events ?? [])

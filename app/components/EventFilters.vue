@@ -42,7 +42,7 @@ function onEndDate(e: Event) {
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-3 items-center">
+  <div class="relative z-50 flex flex-wrap gap-3 items-center">
     <USelect
       :model-value="category || null"
       :options="categoryOptions"
