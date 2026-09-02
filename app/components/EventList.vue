@@ -23,50 +23,17 @@ const emit = defineEmits<{
 
 <template>
   <div class="w-full">
-    <!-- Loading: Nuxt UI Skeleton Grid -->
-    <div
-      v-if="loading"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
-    >
-      <UCard
-        v-for="n in skeletonCount"
-        :key="n"
-        :ui="{ header: 'p-0 sm:p-0' }"
-        class="overflow-hidden"
-      >
-        <template #header>
-          <USkeleton class="w-full aspect-video" />
-        </template>
-        <div class="space-y-2">
-          <USkeleton class="h-4 w-16" />
-          <USkeleton class="h-5 w-full" />
-          <USkeleton class="h-4 w-3/4" />
-          <USkeleton class="h-4 w-1/2" />
-          <USkeleton class="h-4 w-2/3" />
-        </div>
-      </UCard>
-    </div>
+    <!-- Loading -->
+    <EventListSkeleton v-if="loading" :count="skeletonCount" />
 
-    <!-- Error: Nuxt UI UAlert -->
-    <div v-else-if="error">
-      <UAlert
-        color="error"
-        variant="soft"
-        icon="i-lucide-circle-alert"
-        :title="error"
-      >
-        <template #actions>
-          <UButton
-            color="error"
-            variant="ghost"
-            label="Tekrar Dene"
-            @click="emit('retry')"
-          />
-        </template>
-      </UAlert>
-    </div>
+    <!-- Error -->
+    <EventError
+      v-else-if="error"
+      :message="error"
+      @retry="emit('retry')"
+    />
 
-    <!-- Empty: Nuxt UI UEmpty -->
+    <!-- Empty -->
     <div
       v-else-if="!loading && !error && events.length === 0"
       class="py-12"
