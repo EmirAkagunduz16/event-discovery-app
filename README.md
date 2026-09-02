@@ -8,7 +8,7 @@ Nuxt 4, Nuxt UI ve Ticketmaster API kullanılarak geliştirilmiş bir etkinlik k
 
 ```bash
       git clone https://github.com/EmirAkagunduz16/event-discovery-app.git
-      cd event-recovery-app
+      cd event-discovery-app
 ```
 
 2.  Paketleri yükle:
