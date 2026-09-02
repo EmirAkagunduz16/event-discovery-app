@@ -8,7 +8,7 @@ Nuxt 4, Nuxt UI ve Ticketmaster API kullanılarak geliştirilmiş bir etkinlik k
 
 ```bash
       git clone https://github.com/EmirAkagunduz16/event-discovery-app.git
-      cd etkinlik-kesif-uygulamasi
+      cd event-recovery-app
 ```
 
 2.  Paketleri yükle:
@@ -32,8 +32,6 @@ Nuxt 4, Nuxt UI ve Ticketmaster API kullanılarak geliştirilmiş bir etkinlik k
 ```bash
       pnpm run dev
 ```
-
-      Tarayıcı `http://localhost:3000` adresinde açılacak.
 
 ## Teknolojiler
 
