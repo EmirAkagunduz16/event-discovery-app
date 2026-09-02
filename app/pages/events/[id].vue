@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import type { TmEvent, TmImage } from '~~/types/event'
+import type { TmEvent } from '~~/types/event'
 import { useFavoritesStore } from '~~/stores/favorites'
 import { formatCategory, formatEventDate } from '~/utils/formatters'
 
-// ─── Route ───────────────────────────────────────────────────────────────────
+// ─── Route & Router ──────────────────────────────────────────────────────────
 const route = useRoute()
+const router = useRouter()
 
 // ─── State ───────────────────────────────────────────────────────────────────
 const loading = ref(false)
@@ -46,25 +47,35 @@ watch(
   { immediate: true },
 )
 
-// ─── D) Görsel galerisi ──────────────────────────────────────────────────────
-
-/** Tüm görselleri büyükten küçüğe sırala, fallback olmayanları önce getir */
-const sortedImages = computed<TmImage[]>(() => {
+// ─── D) Görsel galerisi — tekrar eden görselleri filtrele ────────────────────
+// Ticketmaster aynı görseli farklı ratio/boyutlarda gönderiyor.
+// Her ratio grubundan sadece en büyük (kaliteli) olanı alıyoruz.
+const galleryImages = computed(() => {
   const imgs = event.value?.images ?? []
-  return [...imgs]
-    .sort((a, b) => {
-      if (a.fallback !== b.fallback)
-        return a.fallback ? 1 : -1
-      return (b.width ?? 0) - (a.width ?? 0)
-    })
+  const nonFallback = imgs.filter(img => !img.fallback)
+  const source = nonFallback.length > 0 ? nonFallback : imgs
+
+  // Ratio başına en geniş görseli tut
+  const byRatio = new Map<string, typeof source[number]>()
+  for (const img of source) {
+    const key = img.ratio ?? 'unknown'
+    const existing = byRatio.get(key)
+    if (!existing || (img.width ?? 0) > (existing.width ?? 0)) {
+      byRatio.set(key, img)
+    }
+  }
+
+  // 16:9 önce gelsin, sonra diğerleri
+  const result = [...byRatio.values()]
+  result.sort((a, b) => {
+    if (a.ratio === '16_9')
+      return -1
+    if (b.ratio === '16_9')
+      return 1
+    return 0
+  })
+  return result
 })
-
-/** Aktif (büyük) görsel index'i */
-const activeImageIndex = ref(0)
-const activeImage = computed(() => sortedImages.value[activeImageIndex.value] ?? null)
-
-// Etkinlik değişince index sıfırla
-watch(event, () => { activeImageIndex.value = 0 })
 
 // ─── D) Durum badge'i ────────────────────────────────────────────────────────
 const statusBadge = computed(() => {
@@ -103,8 +114,7 @@ const priceRanges = computed(() => event.value?.priceRanges ?? [])
 const venues = computed(() => event.value?._embedded?.venues ?? [])
 
 function venueAddress(v: NonNullable<typeof venues.value>[number]) {
-  const parts = [v.address?.line1, v.address?.line2].filter(Boolean)
-  return parts.join(', ')
+  return [v.address?.line1, v.address?.line2].filter(Boolean).join(', ')
 }
 
 function venueLocality(v: NonNullable<typeof venues.value>[number]) {
@@ -138,7 +148,6 @@ function attractionGenre(attraction: NonNullable<typeof attractions.value>[numbe
 
 // ─── G) Favori butonu ────────────────────────────────────────────────────────
 const favoritesStore = useFavoritesStore()
-
 const isFav = computed(() => event.value ? favoritesStore.isFavorite(event.value.id) : false)
 
 function onToggleFavorite() {
@@ -151,7 +160,7 @@ function onToggleFavorite() {
     id: e.id,
     name: e.name,
     url: e.url,
-    image: activeImage.value?.url ?? null,
+    image: galleryImages.value[0]?.url ?? null,
     date: e.dates?.start?.localDate ?? null,
     time: e.dates?.start?.localTime ?? null,
     dateTime: e.dates?.start?.dateTime ?? null,
@@ -182,42 +191,55 @@ function onToggleFavorite() {
 
     <!-- ── İÇERİK ─────────────────────────────────────────────────────────── -->
     <div v-else-if="event" class="max-w-4xl mx-auto px-4 py-8 space-y-8">
-      <!-- ── D) Görsel Galerisi ──────────────────────────────────────────── -->
+      <!-- Geri Butonu -->
+      <UButton
+        icon="i-lucide-arrow-left"
+        color="neutral"
+        variant="ghost"
+        label="Geri Dön"
+        @click="router.back()"
+      />
+
+      <!-- ── D) Görsel Galerisi ───────────────────────────────────────────── -->
       <section>
-        <!-- Ana görsel -->
-        <div class="w-full aspect-video rounded-xl overflow-hidden bg-gray-100 dark:bg-gray-800">
+        <!-- Hiç görsel yok -->
+        <div
+          v-if="galleryImages.length === 0"
+          class="w-full aspect-video rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400"
+        >
+          <UIcon name="i-lucide-image" class="w-16 h-16" />
+        </div>
+
+        <!-- Tek görsel: büyük göster, carousel gereksiz -->
+        <div
+          v-else-if="galleryImages.length === 1"
+          class="w-full aspect-video rounded-xl overflow-hidden"
+        >
           <img
-            v-if="activeImage"
-            :src="activeImage.url"
+            :src="galleryImages[0]!.url"
             :alt="event.name"
             class="w-full h-full object-cover"
           >
-          <div
-            v-else
-            class="w-full h-full flex items-center justify-center text-gray-400"
-          >
-            <UIcon name="i-lucide-image" class="w-16 h-16" />
-          </div>
         </div>
 
-        <!-- Thumbnail'ler (birden fazla görsel varsa) -->
-        <div
-          v-if="sortedImages.length > 1"
-          class="flex gap-2 mt-2 overflow-x-auto pb-1"
+        <!-- Birden fazla benzersiz görsel: UCarousel -->
+        <UCarousel
+          v-else
+          :items="galleryImages"
+          arrows
+          dots
+          class="w-full rounded-xl overflow-hidden"
         >
-          <button
-            v-for="(img, idx) in sortedImages"
-            :key="img.url"
-            type="button"
-            class="shrink-0 w-20 h-14 rounded-lg overflow-hidden border-2 transition-all"
-            :class="idx === activeImageIndex
-              ? 'border-primary-500 opacity-100'
-              : 'border-transparent opacity-60 hover:opacity-100'"
-            @click="activeImageIndex = idx"
-          >
-            <img :src="img.url" :alt="`${event.name} ${idx + 1}`" class="w-full h-full object-cover">
-          </button>
-        </div>
+          <template #default="{ item }">
+            <div class="w-full aspect-video">
+              <img
+                :src="item.url"
+                :alt="event.name"
+                class="w-full h-full object-cover"
+              >
+            </div>
+          </template>
+        </UCarousel>
       </section>
 
       <!-- ── D) Başlık + Meta ────────────────────────────────────────────── -->
@@ -303,7 +325,8 @@ function onToggleFavorite() {
         />
       </section>
 
-      <!-- ── D) Please Note ────────────────────────────────────────────── -->
+      <!-- ── D) Önemli Not ─────────────────────────────────────────────── -->
+      <!-- Not: İçerik Ticketmaster API'sinden geldiğinden İngilizce olabilir. -->
       <section v-if="event.pleaseNote">
         <UAlert
           icon="i-lucide-info"
@@ -324,50 +347,53 @@ function onToggleFavorite() {
           Mekan bilgisi mevcut değil.
         </p>
 
-        <div
+        <UCard
           v-for="venue in venues"
           :key="venue.id"
-          class="border border-gray-200 dark:border-gray-700 rounded-xl p-4 flex gap-4"
         >
-          <!-- Mekan küçük görseli -->
-          <div class="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
-            <img
-              v-if="venueThumbnail(venue)"
-              :src="venueThumbnail(venue)!"
-              :alt="venue.name"
-              class="w-full h-full object-cover"
-            >
-            <div
-              v-else
-              class="w-full h-full flex items-center justify-center text-gray-400"
-            >
-              <UIcon name="i-lucide-building-2" class="w-8 h-8" />
+          <div class="flex gap-4">
+            <!-- Mekan küçük görseli -->
+            <div class="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
+              <img
+                v-if="venueThumbnail(venue)"
+                :src="venueThumbnail(venue)!"
+                :alt="venue.name"
+                class="w-full h-full object-cover"
+              >
+              <div
+                v-else
+                class="w-full h-full flex items-center justify-center text-gray-400"
+              >
+                <UIcon name="i-lucide-building-2" class="w-8 h-8" />
+              </div>
+            </div>
+
+            <!-- Mekan detayları -->
+            <div class="flex-1 min-w-0 space-y-1">
+              <p class="font-semibold truncate">
+                {{ venue.name }}
+              </p>
+              <p v-if="venueAddress(venue)" class="text-sm text-gray-600 dark:text-gray-400 truncate">
+                {{ venueAddress(venue) }}
+              </p>
+              <p v-if="venueLocality(venue)" class="text-sm text-gray-500 dark:text-gray-500 truncate">
+                {{ venueLocality(venue) }}
+              </p>
+              <UButton
+                v-if="venue.location?.latitude && venue.location?.longitude"
+                :to="mapsUrl(venue.location.latitude, venue.location.longitude)"
+                target="_blank"
+                rel="noopener noreferrer"
+                icon="i-lucide-map-pin"
+                color="primary"
+                variant="link"
+                size="sm"
+                label="Haritada Gör"
+                class="p-0"
+              />
             </div>
           </div>
-
-          <!-- Mekan detayları -->
-          <div class="flex-1 min-w-0 space-y-1">
-            <p class="font-semibold truncate">
-              {{ venue.name }}
-            </p>
-            <p v-if="venueAddress(venue)" class="text-sm text-gray-600 dark:text-gray-400 truncate">
-              {{ venueAddress(venue) }}
-            </p>
-            <p v-if="venueLocality(venue)" class="text-sm text-gray-500 dark:text-gray-500 truncate">
-              {{ venueLocality(venue) }}
-            </p>
-            <a
-              v-if="venue.location?.latitude && venue.location?.longitude"
-              :href="mapsUrl(venue.location.latitude, venue.location.longitude)"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-1 text-sm text-primary-500 hover:underline mt-1"
-            >
-              <UIcon name="i-lucide-map-pin" class="w-4 h-4" />
-              Haritada Gör
-            </a>
-          </div>
-        </div>
+        </UCard>
       </section>
 
       <!-- ── F) Sanatçılar ──────────────────────────────────────────────── -->
@@ -399,11 +425,12 @@ function onToggleFavorite() {
                 <UIcon name="i-lucide-user" class="w-7 h-7" />
               </div>
             </div>
-            <!-- İsim -->
-            <p class="text-sm font-medium leading-tight" :class="a.url ? 'group-hover:text-primary-500 transition-colors' : ''">
+            <p
+              class="text-sm font-medium leading-tight"
+              :class="a.url ? 'group-hover:text-primary-500 transition-colors' : ''"
+            >
               {{ a.name }}
             </p>
-            <!-- Kategori -->
             <p v-if="attractionGenre(a)" class="text-xs text-gray-500 dark:text-gray-400 -mt-1">
               {{ attractionGenre(a) }}
             </p>
