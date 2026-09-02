@@ -16,6 +16,13 @@ function onInput(val: string) {
   timer = setTimeout(() => emit('search', val.trim()), 400)
 }
 
+function onEnter() {
+  clearTimeout(timer) // 400ms beklemeyi iptal et
+  if (input.value.length >= 2 || input.value.length === 0) {
+    emit('search', input.value.trim()) // Anında ara
+  }
+}
+
 function onClear() {
   input.value = ''
   emit('search', '')
@@ -25,13 +32,10 @@ function onClear() {
 <template>
   <div class="flex flex-col gap-1">
     <UInput
-      :model-value="input"
-      placeholder="Etkinlik, sanatçı veya mekan ara..."
-      size="lg"
-      leading-icon="i-lucide-search"
-      :trailing-icon="input ? 'i-lucide-x' : undefined"
-      @update:model-value="onInput"
-      @click:trailing="onClear"
+      :model-value="input" placeholder="Etkinlik, sanatçı veya mekan ara..." size="lg"
+      leading-icon="i-lucide-search" :trailing-icon="input ? 'i-lucide-x' : undefined"
+      @update:model-value="onInput" @click:trailing="onClear"
+      @keydown.enter="onEnter"
     />
     <p v-if="showHint" class="text-xs text-gray-400 dark:text-gray-500 pl-1">
       Aramak için en az 2 karakter girin
