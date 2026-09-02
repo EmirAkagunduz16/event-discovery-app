@@ -369,15 +369,13 @@ function onToggleFavorite() {
           Sanatçılar & Katılımcılar
         </h2>
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          <component
-            :is="a.url ? 'a' : 'div'"
+          <NuxtLink
             v-for="a in attractions"
             :key="a.id"
-            v-bind="a.url ? { href: a.url, target: '_blank', rel: 'noopener noreferrer' } : {}"
-            class="flex flex-col items-center gap-2 text-center group"
-            :class="a.url ? 'cursor-pointer' : ''"
+            :to="{ path: '/events', query: { keyword: a.name } }"
+            class="flex flex-col items-center gap-2 text-center group cursor-pointer p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800/60 transition-colors"
           >
-            <div class="w-16 h-16 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0">
+            <div class="w-16 h-16 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0 ring-2 ring-transparent group-hover:ring-primary-500 transition-all">
               <img
                 v-if="attractionImage(a)"
                 :src="attractionImage(a)!"
@@ -392,15 +390,14 @@ function onToggleFavorite() {
               </div>
             </div>
             <p
-              class="text-sm font-medium leading-tight"
-              :class="a.url ? 'group-hover:text-primary-500 transition-colors' : ''"
+              class="text-sm font-medium leading-tight group-hover:text-primary-500 transition-colors"
             >
               {{ a.name }}
             </p>
             <p v-if="attractionGenre(a)" class="text-xs text-gray-500 dark:text-gray-400 -mt-1">
               {{ attractionGenre(a) }}
             </p>
-          </component>
+          </NuxtLink>
         </div>
       </section>
     </div>

@@ -14,7 +14,7 @@ const favCount = computed(() => favoritesStore.count)
         class="flex items-center gap-2.5 font-extrabold text-lg tracking-tight text-gray-900 dark:text-white hover:text-primary-500 transition-colors"
       >
         <div class="w-8 h-8 rounded-lg bg-primary-500/10 dark:bg-primary-500/20 flex items-center justify-center text-primary-500">
-          <UIcon name="i-lucide-sparkles" class="w-5 h-5" />
+          <UIcon name="tabler:brand-nuxt" class="w-5 h-5" />
         </div>
         <span>Event Discovery</span>
       </NuxtLink>
