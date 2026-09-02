@@ -3,17 +3,14 @@ import type { TmEvent } from '~~/types/event'
 import { useFavoritesStore } from '~~/stores/favorites'
 import { formatCategory, formatEventDate } from '~/utils/formatters'
 
-// ─── Route & Router ──────────────────────────────────────────────────────────
 const route = useRoute()
 const router = useRouter()
 
-// ─── State ───────────────────────────────────────────────────────────────────
 const loading = ref(false)
 const event = ref<TmEvent | null>(null)
 const errorType = ref<null | 'not_found' | 'general'>(null)
 const errorMessage = ref<string | null>(null)
 
-// ─── Veri çekme ──────────────────────────────────────────────────────────────
 async function fetchEvent(id: string) {
   loading.value = true
   event.value = null
@@ -47,15 +44,11 @@ watch(
   { immediate: true },
 )
 
-// ─── D) Görsel galerisi — tekrar eden görselleri filtrele ────────────────────
-// Ticketmaster aynı görseli farklı ratio/boyutlarda gönderiyor.
-// Her ratio grubundan sadece en büyük (kaliteli) olanı alıyoruz.
 const galleryImages = computed(() => {
   const imgs = event.value?.images ?? []
   const nonFallback = imgs.filter(img => !img.fallback)
   const source = nonFallback.length > 0 ? nonFallback : imgs
 
-  // Ratio başına en geniş görseli tut
   const byRatio = new Map<string, typeof source[number]>()
   for (const img of source) {
     const key = img.ratio ?? 'unknown'
@@ -65,7 +58,6 @@ const galleryImages = computed(() => {
     }
   }
 
-  // 16:9 önce gelsin, sonra diğerleri
   const result = [...byRatio.values()]
   result.sort((a, b) => {
     if (a.ratio === '16_9')
@@ -77,7 +69,6 @@ const galleryImages = computed(() => {
   return result
 })
 
-// ─── D) Durum badge'i ────────────────────────────────────────────────────────
 const statusBadge = computed(() => {
   const code = event.value?.dates?.status?.code
   if (!code)
@@ -92,7 +83,6 @@ const statusBadge = computed(() => {
   return map[code] ?? null
 })
 
-// ─── D) Tarih + saat ─────────────────────────────────────────────────────────
 const formattedStart = computed(() =>
   formatEventDate(
     event.value?.dates?.start?.localDate,
@@ -107,10 +97,8 @@ const formattedEnd = computed(() =>
   ),
 )
 
-// ─── D) Fiyat aralığı ────────────────────────────────────────────────────────
 const priceRanges = computed(() => event.value?.priceRanges ?? [])
 
-// ─── E) Mekan ────────────────────────────────────────────────────────────────
 const venues = computed(() => event.value?._embedded?.venues ?? [])
 
 function venueAddress(v: NonNullable<typeof venues.value>[number]) {
@@ -130,7 +118,6 @@ function mapsUrl(lat: string, lng: string) {
   return `https://www.google.com/maps?q=${lat},${lng}`
 }
 
-// ─── F) Sanatçılar ───────────────────────────────────────────────────────────
 const attractions = computed(() => event.value?._embedded?.attractions ?? [])
 
 function attractionImage(attraction: NonNullable<typeof attractions.value>[number]) {
@@ -146,7 +133,6 @@ function attractionGenre(attraction: NonNullable<typeof attractions.value>[numbe
   return formatCategory(cls?.segment?.name) ?? cls?.genre?.name ?? null
 }
 
-// ─── G) Favori butonu ────────────────────────────────────────────────────────
 const favoritesStore = useFavoritesStore()
 const isFav = computed(() => event.value ? favoritesStore.isFavorite(event.value.id) : false)
 
@@ -189,9 +175,7 @@ function onToggleFavorite() {
       @retry="fetchEvent(route.params.id as string)"
     />
 
-    <!-- ── İÇERİK ─────────────────────────────────────────────────────────── -->
     <div v-else-if="event" class="max-w-4xl mx-auto px-4 py-8 space-y-8">
-      <!-- Geri Butonu -->
       <UButton
         icon="i-lucide-arrow-left"
         color="neutral"
@@ -200,9 +184,7 @@ function onToggleFavorite() {
         @click="router.back()"
       />
 
-      <!-- ── D) Görsel Galerisi ───────────────────────────────────────────── -->
       <section>
-        <!-- Hiç görsel yok -->
         <div
           v-if="galleryImages.length === 0"
           class="w-full aspect-video rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-gray-400"
@@ -210,7 +192,6 @@ function onToggleFavorite() {
           <UIcon name="i-lucide-image" class="w-16 h-16" />
         </div>
 
-        <!-- Tek görsel: büyük göster, carousel gereksiz -->
         <div
           v-else-if="galleryImages.length === 1"
           class="w-full aspect-video rounded-xl overflow-hidden"
@@ -222,7 +203,6 @@ function onToggleFavorite() {
           >
         </div>
 
-        <!-- Birden fazla benzersiz görsel: UCarousel -->
         <UCarousel
           v-else
           :items="galleryImages"
@@ -242,13 +222,11 @@ function onToggleFavorite() {
         </UCarousel>
       </section>
 
-      <!-- ── D) Başlık + Meta ────────────────────────────────────────────── -->
       <section class="space-y-3">
         <div class="flex items-start gap-3">
           <h1 class="text-2xl sm:text-3xl font-bold flex-1">
             {{ event.name }}
           </h1>
-          <!-- G) Favori Butonu -->
           <UButton
             :color="isFav ? 'error' : 'neutral'"
             :variant="isFav ? 'solid' : 'outline'"
@@ -260,7 +238,6 @@ function onToggleFavorite() {
           />
         </div>
 
-        <!-- Durum badge'i -->
         <div v-if="statusBadge">
           <UBadge
             :label="statusBadge.label"
@@ -270,7 +247,6 @@ function onToggleFavorite() {
           />
         </div>
 
-        <!-- Tarih + saat -->
         <div v-if="formattedStart" class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
           <UIcon name="i-lucide-calendar" class="w-5 h-5 shrink-0 text-primary-500" />
           <span class="font-medium">{{ formattedStart }}</span>
@@ -281,7 +257,6 @@ function onToggleFavorite() {
         </div>
       </section>
 
-      <!-- ── D) Açıklama ────────────────────────────────────────────────── -->
       <section v-if="event.description" class="space-y-2">
         <h2 class="text-lg font-semibold">
           Hakkında
@@ -291,7 +266,6 @@ function onToggleFavorite() {
         </p>
       </section>
 
-      <!-- ── D) Fiyat Aralığı ───────────────────────────────────────────── -->
       <section v-if="priceRanges.length > 0" class="space-y-2">
         <h2 class="text-lg font-semibold">
           Bilet Fiyatları
@@ -311,7 +285,6 @@ function onToggleFavorite() {
         </ul>
       </section>
 
-      <!-- ── D) Bilet Satın Al butonu ───────────────────────────────────── -->
       <section v-if="event.url">
         <UButton
           :to="event.url"
@@ -325,8 +298,6 @@ function onToggleFavorite() {
         />
       </section>
 
-      <!-- ── D) Önemli Not ─────────────────────────────────────────────── -->
-      <!-- Not: İçerik Ticketmaster API'sinden geldiğinden İngilizce olabilir. -->
       <section v-if="event.pleaseNote">
         <UAlert
           icon="i-lucide-info"
@@ -337,7 +308,6 @@ function onToggleFavorite() {
         />
       </section>
 
-      <!-- ── E) Mekan Bilgisi ───────────────────────────────────────────── -->
       <section class="space-y-3">
         <h2 class="text-lg font-semibold">
           Mekan
@@ -352,7 +322,6 @@ function onToggleFavorite() {
           :key="venue.id"
         >
           <div class="flex gap-4">
-            <!-- Mekan küçük görseli -->
             <div class="shrink-0 w-16 h-16 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-800">
               <img
                 v-if="venueThumbnail(venue)"
@@ -368,7 +337,6 @@ function onToggleFavorite() {
               </div>
             </div>
 
-            <!-- Mekan detayları -->
             <div class="flex-1 min-w-0 space-y-1">
               <p class="font-semibold truncate">
                 {{ venue.name }}
@@ -396,7 +364,6 @@ function onToggleFavorite() {
         </UCard>
       </section>
 
-      <!-- ── F) Sanatçılar ──────────────────────────────────────────────── -->
       <section v-if="attractions.length > 0" class="space-y-3">
         <h2 class="text-lg font-semibold">
           Sanatçılar & Katılımcılar
@@ -410,7 +377,6 @@ function onToggleFavorite() {
             class="flex flex-col items-center gap-2 text-center group"
             :class="a.url ? 'cursor-pointer' : ''"
           >
-            <!-- Sanatçı görseli -->
             <div class="w-16 h-16 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-800 shrink-0">
               <img
                 v-if="attractionImage(a)"

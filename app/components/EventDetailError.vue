@@ -8,7 +8,6 @@ const emit = defineEmits<{ (e: 'retry'): void }>()
 </script>
 
 <template>
-  <!-- NOT FOUND: UEmpty ile -->
   <UEmpty
     v-if="type === 'not_found'"
     icon="i-lucide-search-x"
@@ -27,7 +26,6 @@ const emit = defineEmits<{ (e: 'retry'): void }>()
     </template>
   </UEmpty>
 
-  <!-- GENERAL ERROR: UEmpty ile kırmızı ton -->
   <UEmpty
     v-else
     icon="i-lucide-wifi-off"

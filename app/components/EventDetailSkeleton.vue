@@ -1,13 +1,10 @@
 <script lang="ts" setup>
-// Detay sayfası için loading skeleton — Nuxt UI USkeleton componentleri kullanılır
 </script>
 
 <template>
   <div class="max-w-4xl mx-auto px-4 py-8 space-y-6">
-    <!-- Görsel alanı -->
     <USkeleton class="w-full aspect-video rounded-xl" />
 
-    <!-- Başlık + favori -->
     <div class="flex items-start gap-3">
       <div class="flex-1 space-y-3">
         <USkeleton class="h-8 w-3/4" />
@@ -19,7 +16,6 @@
       <USkeleton class="h-10 w-10 rounded-lg shrink-0" />
     </div>
 
-    <!-- Açıklama -->
     <div class="space-y-2">
       <USkeleton class="h-4 w-full" />
       <USkeleton class="h-4 w-full" />
@@ -27,7 +23,6 @@
       <USkeleton class="h-4 w-4/6" />
     </div>
 
-    <!-- Mekan -->
     <UCard class="flex gap-4">
       <template #header>
         <USkeleton class="h-5 w-24" />
@@ -42,7 +37,6 @@
       </div>
     </UCard>
 
-    <!-- Sanatçılar -->
     <div class="space-y-3">
       <USkeleton class="h-6 w-32" />
       <div class="flex gap-6">
