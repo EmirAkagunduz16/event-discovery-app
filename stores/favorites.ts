@@ -26,15 +26,35 @@ export const useFavoritesStore = defineStore('favorites', {
       this._save()
     },
 
+    clearAll() {
+      this.events = []
+      this._save()
+    },
+
     hydrate() {
       if (import.meta.server)
         return
       try {
         const raw = localStorage.getItem('eda:favorites')
-        if (raw)
-          this.events = JSON.parse(raw)
+        if (!raw)
+          return
+
+        const parsed = JSON.parse(raw)
+
+        // Bozuk veri toleransı: array olmalı ve her öğede en azından id + name olmalı
+        if (!Array.isArray(parsed)) {
+          this.events = []
+          return
+        }
+
+        this.events = parsed.filter(
+          (e: unknown) => typeof e === 'object' && e !== null && 'id' in e && 'name' in e,
+        ) as EventCard[]
       }
-      catch {}
+      catch {
+        // JSON.parse hatası, bozuk veri — sessizce boş başla
+        this.events = []
+      }
     },
 
     _save() {
