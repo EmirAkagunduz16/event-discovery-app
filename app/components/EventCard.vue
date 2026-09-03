@@ -27,7 +27,7 @@ const image = computed(() => {
     return nonFallback[0]?.url
   }
 
-  return images[0]?.url ?? null
+  return images[0]?.url ?? '/placeholder.svg'
 })
 
 // Tarih + saat formatı: "25 Aralık 2024, 19:30"
@@ -51,7 +51,7 @@ const isFav = computed(() => favoritesStore.isFavorite(props.event.id))
 
 function onToggleFavorite() {
   const price = props.event.priceRanges?.[0]
-  favoritesStore.toggle({
+  favoritesStore.toggleFavorite({
     id: props.event.id,
     name: props.event.name,
     url: props.event.url,
