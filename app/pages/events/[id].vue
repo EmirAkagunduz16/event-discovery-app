@@ -304,7 +304,7 @@ function onToggleFavorite() {
               />
             </div>
 
-            <div class="space-y-2 pt-2 border-t border-gray-100 dark:border-gray-800">
+            <div class="space-y-2 pt-2 mt-2 border-t border-gray-100 dark:border-gray-800">
               <div v-if="formattedStart" class="flex items-center gap-2 text-gray-700 dark:text-gray-300">
                 <UIcon name="i-lucide-calendar" class="w-5 h-5 shrink-0 text-primary-500" />
                 <span class="font-medium text-sm sm:text-base">{{ formattedStart }}</span>
