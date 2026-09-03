@@ -1,8 +1,24 @@
 <script lang="ts" setup>
+import { MoonIcon, SunIcon } from '@heroicons/vue/24/outline'
 import { useFavoritesStore } from '~~/stores/favorites'
 
 const favoritesStore = useFavoritesStore()
 const favCount = computed(() => favoritesStore.count)
+
+const colorMode = useColorMode()
+
+const isDark = computed({
+  get() {
+    return colorMode.value === 'dark'
+  },
+  set() {
+    colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+  },
+})
+
+function toggleColorMode() {
+  colorMode.preference = colorMode.value === 'dark' ? 'light' : 'dark'
+}
 </script>
 
 <template>
@@ -56,6 +72,25 @@ const favCount = computed(() => favoritesStore.count)
             class="rounded-full"
           />
         </UButton>
+
+        <!-- Tema Değiştirme Butonu -->
+        <ClientOnly>
+          <UButton
+            square
+            variant="ghost"
+            color="neutral"
+            size="sm"
+            :aria-label="isDark ? 'Açık moda geç' : 'Koyu moda geç'"
+            :title="isDark ? 'Açık moda geç' : 'Koyu moda geç'"
+            @click="toggleColorMode"
+          >
+            <MoonIcon v-if="isDark" class="w-5 h-5" />
+            <SunIcon v-else class="w-5 h-5" />
+          </UButton>
+          <template #fallback>
+            <div class="w-8 h-8" />
+          </template>
+        </ClientOnly>
       </nav>
     </UContainer>
   </header>
