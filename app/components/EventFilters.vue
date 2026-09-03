@@ -55,30 +55,37 @@ function onEndDate(e: Event) {
 </script>
 
 <template>
-  <div class="flex flex-wrap gap-3 items-center">
-    <USelect
-      :model-value="category || 'all'"
-      :items="categoryOptions"
-      size="md"
-      class="w-48"
-      @update:model-value="onCategorySelect"
-    />
+  <div class="flex flex-col gap-4 w-full">
+    <div class="space-y-1.5">
+      <label class="text-xs font-semibold text-gray-500 dark:text-gray-400">Kategori</label>
+      <USelect
+        :model-value="category || 'all'"
+        :items="categoryOptions"
+        size="md"
+        class="w-full"
+        @update:model-value="onCategorySelect"
+      />
+    </div>
 
-    <div class="flex flex-col gap-1">
-      <div class="flex gap-2 items-center">
-        <input
-          :value="startDate"
-          type="date"
-          class="h-8 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
-          @change="onStartDate"
-        >
-        <span class="text-xs text-gray-400">—</span>
-        <input
-          :value="endDate"
-          type="date"
-          class="h-8 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
-          @change="onEndDate"
-        >
+    <div class="space-y-1.5">
+      <label class="text-xs font-semibold text-gray-500 dark:text-gray-400">Tarih Aralığı</label>
+      <div class="flex flex-col sm:flex-row lg:flex-col gap-2">
+        <div class="flex-1">
+          <input
+            :value="startDate"
+            type="date"
+            class="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
+            @change="onStartDate"
+          >
+        </div>
+        <div class="flex-1">
+          <input
+            :value="endDate"
+            type="date"
+            class="w-full h-10 rounded-md border border-gray-300 bg-white px-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:border-gray-600 dark:bg-gray-900 dark:text-gray-100 dark:[color-scheme:dark]"
+            @change="onEndDate"
+          >
+        </div>
       </div>
       <p v-if="dateError" class="text-xs text-red-500 dark:text-red-400">
         {{ dateError }}

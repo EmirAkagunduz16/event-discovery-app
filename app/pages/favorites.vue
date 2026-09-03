@@ -27,7 +27,7 @@ function confirmClearAll() {
         variant="ghost"
         color="neutral"
         size="sm"
-        class="-ml-2"
+        class="-ml-2 min-h-11 px-3"
       />
       <div class="flex items-center justify-between">
         <div class="space-y-1">
@@ -50,6 +50,7 @@ function confirmClearAll() {
           color="error"
           variant="soft"
           size="sm"
+          class="min-h-11 px-3"
           @click="showClearConfirm = true"
         />
       </div>
@@ -58,7 +59,7 @@ function confirmClearAll() {
     <!-- Favoriler Grid -->
     <div
       v-if="favorites.length > 0"
-      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
     >
       <div
         v-for="fav in favorites"
@@ -103,11 +104,11 @@ function confirmClearAll() {
 
                 <!-- Favori Çıkar Butonu -->
                 <UButton
-                  class="absolute top-3 right-3 rounded-full shadow-md backdrop-blur-sm"
+                  class="absolute top-3 right-3 rounded-full shadow-md backdrop-blur-sm min-w-11 min-h-11 flex items-center justify-center p-2.5"
                   color="error"
                   variant="solid"
                   icon="i-lucide-heart"
-                  size="xs"
+                  size="sm"
                   aria-label="Favorilerden Çıkar"
                   @click.stop.prevent="favoritesStore.toggle(fav)"
                 />

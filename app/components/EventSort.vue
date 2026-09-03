@@ -9,9 +9,11 @@ interface SortOption {
 withDefaults(
   defineProps<{
     modelValue?: TmEventSortOption
+    block?: boolean
   }>(),
   {
     modelValue: 'date,asc',
+    block: false,
   },
 )
 
@@ -36,16 +38,16 @@ function onSelect(val: string | undefined) {
 </script>
 
 <template>
-  <div class="flex items-center gap-2">
-    <span class="text-xs text-gray-500 dark:text-gray-400 font-medium whitespace-nowrap hidden sm:inline">
-      Sırala:
+  <div class="flex items-center gap-2" :class="[block ? 'w-full flex-col items-start' : '']">
+    <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold whitespace-nowrap" :class="[block ? 'inline' : 'hidden sm:inline']">
+      Sıralama
     </span>
     <USelect
       :model-value="modelValue || 'date,asc'"
       :items="sortOptions"
       icon="i-lucide-arrow-up-down"
       size="md"
-      class="w-56"
+      :class="block ? 'w-full' : 'w-full sm:w-56'"
       @update:model-value="onSelect"
     />
   </div>

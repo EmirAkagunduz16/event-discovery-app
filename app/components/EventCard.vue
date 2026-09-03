@@ -110,11 +110,11 @@ function onToggleFavorite() {
 
           <!-- Favori Butonu (Görsel üzerinde yüzen) -->
           <UButton
-            class="absolute top-3 right-3 rounded-full shadow-md backdrop-blur-sm"
+            class="absolute top-3 right-3 rounded-full shadow-md backdrop-blur-sm min-w-11 min-h-11 flex items-center justify-center p-2.5"
             :color="isFav ? 'error' : 'neutral'"
             :variant="isFav ? 'solid' : 'soft'"
             icon="i-lucide-heart"
-            size="xs"
+            size="sm"
             :aria-label="isFav ? 'Favorilerden Çıkar' : 'Favorilere Ekle'"
             @click.stop.prevent="onToggleFavorite"
           />
