@@ -51,7 +51,7 @@ const events = computed(() => data.value?._embedded?.events ?? [])
         color="primary"
         variant="solid"
         trailing-icon="i-lucide-arrow-right"
-        class="px-8 shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 transition-all"
+        class="w-full sm:w-auto justify-center px-8 shadow-lg shadow-primary-500/20 hover:shadow-primary-500/30 transition-all min-h-11"
       />
     </div>
   </UContainer>
