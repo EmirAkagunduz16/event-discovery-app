@@ -16,3 +16,18 @@
   --color-green-900: #0a5331;
   --color-green-950: #052e16;
 }
+
+html.dark {
+  color-scheme: dark;
+}
+
+html:not(.dark) {
+  color-scheme: light;
+}
+
+html,
+body {
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
